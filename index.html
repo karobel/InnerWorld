@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Inner Landscape — Personality Assessment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --sage:#6B8F71;--sage-light:#E8F0E9;--sage-dark:#3D5C42;
+  --warm:#C4956A;--warm-light:#F5EDE3;--warm-dark:#8B5E35;
+  --rose:#C47A85;--rose-light:#F9EEF0;--rose-dark:#8B3D4A;
+  --indigo:#6A7FC4;--indigo-light:#ECEEF8;--indigo-dark:#3D4A8B;
+  --ink:#1a1a18;--muted:#6b6b66;--bg:#faf9f6;--surface:#f2efe8;
+  --border:rgba(0,0,0,0.1);--white:#ffffff;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:2rem 1rem 4rem}
+.container{width:100%;max-width:640px}
+.screen{display:none;animation:fadeIn .5s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* Lang bar */
+.lang-bar{display:flex;justify-content:flex-end;gap:8px;margin-bottom:2.5rem}
+.lang-btn{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;padding:5px 16px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;letter-spacing:.08em;text-transform:uppercase;transition:all .2s}
+.lang-btn.active{background:var(--sage-dark);border-color:var(--sage-dark);color:#fff}
+.lang-btn:hover:not(.active){border-color:var(--sage);color:var(--sage-dark)}
+
+/* Home */
+.hero-eyebrow{font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--warm);margin-bottom:1.25rem}
+h1{font-family:'Playfair Display',serif;font-size:clamp(26px,5vw,40px);font-weight:400;line-height:1.2;color:var(--ink);margin-bottom:1.25rem}
+h1 em{font-style:italic;color:var(--sage-dark)}
+.hero-desc{font-size:15px;color:var(--muted);line-height:1.8;max-width:500px;margin-bottom:2rem}
+.ornament{display:flex;align-items:center;gap:14px;margin:1.5rem 0}
+.ornament-line{flex:1;height:1px;background:var(--border)}
+.ornament-dot{width:7px;height:7px;border-radius:50%;background:var(--warm);opacity:.5}
+.feature-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:2rem}
+.feature-pill{font-size:11px;padding:5px 13px;border-radius:20px;border:1px solid var(--border);color:var(--muted);background:var(--surface)}
+.start-btn{font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;padding:15px 40px;background:var(--sage-dark);color:#fff;border:none;border-radius:40px;cursor:pointer;letter-spacing:.04em;transition:all .2s;display:block}
+.start-btn:hover{background:var(--sage);transform:translateY(-2px);box-shadow:0 6px 20px rgba(61,92,66,.25)}
+.disclaimer{font-size:11px;color:var(--muted);margin-top:1.5rem;opacity:.65;line-height:1.7;max-width:440px}
+
+/* Quiz */
+.progress-wrap{margin-bottom:2.25rem}
+.progress-info{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:9px}
+.progress-track{height:3px;background:var(--surface);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--sage),var(--warm),var(--rose));border-radius:4px;transition:width .6s ease}
+.section-badge{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:500;letter-spacing:.13em;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:.85rem}
+.section-badge.core{background:var(--sage-light);color:var(--sage-dark)}
+.section-badge.partner{background:var(--rose-light);color:var(--rose-dark)}
+.section-badge.future{background:var(--indigo-light);color:var(--indigo-dark)}
+.q-number{font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--warm);margin-bottom:.75rem}
+.q-text{font-family:'Playfair Display',serif;font-size:21px;line-height:1.5;color:var(--ink);margin-bottom:2rem}
+.options{display:flex;flex-direction:column;gap:10px;margin-bottom:2rem}
+.opt{font-family:'DM Sans',sans-serif;font-size:14px;text-align:left;padding:14px 18px;border-radius:12px;border:1px solid var(--border);background:var(--white);color:var(--ink);cursor:pointer;transition:all .18s;line-height:1.55}
+.opt:hover{border-color:var(--sage);background:var(--sage-light)}
+.opt.selected{border-color:var(--sage-dark);background:var(--sage-light);color:var(--sage-dark);font-weight:500}
+.opt.selected.partner-q{border-color:var(--rose-dark);background:var(--rose-light);color:var(--rose-dark)}
+.opt.selected.future-q{border-color:var(--indigo-dark);background:var(--indigo-light);color:var(--indigo-dark)}
+.nav{display:flex;justify-content:space-between;align-items:center}
+.back-btn{font-family:'DM Sans',sans-serif;font-size:13px;color:var(--muted);background:transparent;border:none;cursor:pointer;padding:8px 0;transition:color .2s}
+.back-btn:hover{color:var(--ink)}
+.next-btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:11px 30px;background:var(--sage-dark);color:#fff;border:none;border-radius:30px;cursor:pointer;transition:all .18s;opacity:0;pointer-events:none}
+.next-btn.show{opacity:1;pointer-events:auto}
+.next-btn:hover{background:var(--sage)}
+
+/* Loading */
+#screen-loading{text-align:center;padding:5rem 1rem}
+.spinner{width:52px;height:52px;border-radius:50%;border:2px solid var(--border);border-top-color:var(--sage);margin:0 auto 1.75rem;animation:spin 1.1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-title{font-family:'Playfair Display',serif;font-size:20px;color:var(--ink);margin-bottom:.5rem}
+.loading-sub{font-size:13px;color:var(--muted)}
+
+/* Results */
+.result-eyebrow{font-size:11px;font-weight:500;letter-spacing:.15em;text-transform:uppercase;color:var(--warm);margin-bottom:.5rem}
+.result-headline{font-family:'Playfair Display',serif;font-size:30px;font-weight:400;color:var(--ink);margin-bottom:2rem;line-height:1.25}
+.rcard{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:1.5rem 1.75rem;margin-bottom:1rem}
+.rcard.partner{border-left:3px solid var(--rose)}
+.rcard.future{border-left:3px solid var(--indigo)}
+.rcard-label{font-size:10px;font-weight:500;letter-spacing:.13em;text-transform:uppercase;margin-bottom:.6rem}
+.rcard-label.sage{color:var(--warm)}
+.rcard-label.rose{color:var(--rose-dark)}
+.rcard-label.indigo{color:var(--indigo-dark)}
+.rcard-body{font-size:14px;color:var(--muted);line-height:1.85}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:1rem}
+.pill-sage{font-size:12px;padding:5px 13px;border-radius:20px;background:var(--sage-light);color:var(--sage-dark);font-weight:500}
+.pill-warm{font-size:12px;padding:5px 13px;border-radius:20px;background:var(--warm-light);color:var(--warm-dark);font-weight:500}
+.pill-rose{font-size:12px;padding:5px 13px;border-radius:20px;background:var(--rose-light);color:var(--rose-dark);font-weight:500}
+.pill-indigo{font-size:12px;padding:5px 13px;border-radius:20px;background:var(--indigo-light);color:var(--indigo-dark);font-weight:500}
+.result-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:1.5rem}
+.reset-btn{font-family:'DM Sans',sans-serif;font-size:13px;color:var(--muted);background:transparent;border:1px solid var(--border);border-radius:30px;cursor:pointer;padding:11px 26px;transition:all .2s}
+.reset-btn:hover{background:var(--surface);color:var(--ink)}
+.copy-btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--sage-dark);background:var(--sage-light);border:1px solid var(--sage-light);border-radius:30px;cursor:pointer;padding:11px 26px;transition:all .2s}
+.copy-btn:hover{background:var(--sage);color:#fff;border-color:var(--sage)}
+.print-btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--indigo-dark);background:var(--indigo-light);border:1px solid var(--indigo-light);border-radius:30px;cursor:pointer;padding:11px 26px;transition:all .2s}
+.print-btn:hover{background:var(--indigo-dark);color:#fff;border-color:var(--indigo-dark)}
+.error-box{font-size:13px;color:#a33;padding:14px 16px;background:#fff0f0;border-radius:10px;margin-top:1rem;border:1px solid #f5c0c0;line-height:1.6}
+
+/* Intro form */
+#screen-intro .intro-title{font-family:'Playfair Display',serif;font-size:22px;color:var(--ink);margin-bottom:.4rem;line-height:1.3}
+#screen-intro .intro-sub{font-size:13px;color:var(--muted);margin-bottom:2rem;line-height:1.6}
+.field-group{margin-bottom:1.4rem}
+.field-label{font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.5rem}
+.field-input{width:100%;font-family:'DM Sans',sans-serif;font-size:15px;padding:13px 16px;border:1px solid var(--border);border-radius:12px;background:var(--white);color:var(--ink);outline:none;transition:border-color .2s}
+.field-input:focus{border-color:var(--sage-dark)}
+.gender-grid{display:flex;gap:10px;flex-wrap:wrap}
+.gender-opt{flex:1;min-width:90px;font-family:'DM Sans',sans-serif;font-size:13px;padding:12px 10px;border-radius:12px;border:1px solid var(--border);background:var(--white);color:var(--muted);cursor:pointer;transition:all .18s;text-align:center}
+.gender-opt:hover{border-color:var(--sage);background:var(--sage-light);color:var(--sage-dark)}
+.gender-opt.selected{border-color:var(--sage-dark);background:var(--sage-light);color:var(--sage-dark);font-weight:500}
+.intro-err{font-size:12px;color:#a33;margin-top:.5rem;display:none}
+
+/* ── PRINT ── */
+@media print {
+  body{background:#fff;padding:0;display:block}
+  .lang-bar,.result-actions{display:none!important}
+  .container{max-width:100%;padding:1.5cm 2cm}
+  .screen{display:none!important}
+  #screen-result{display:block!important;animation:none}
+  .rcard{break-inside:avoid;border:1px solid #ddd!important;border-radius:8px;margin-bottom:1rem;box-shadow:none}
+  .rcard.partner{border-left:3px solid var(--rose)!important}
+  .rcard.future{border-left:3px solid var(--indigo)!important}
+  .result-headline{font-size:24px}
+  @page{margin:1.8cm}
+  .print-header{display:block!important}
+}
+.print-header{display:none;text-align:center;margin-bottom:2rem;padding-bottom:1.25rem;border-bottom:2px solid #eee}
+.print-logo{font-family:'Playfair Display',serif;font-size:15px;color:var(--sage-dark);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.print-date{font-size:11px;color:#aaa}
+
+@media(max-width:480px){
+  body{padding:1.25rem 1rem 3rem}
+  h1{font-size:24px}
+  .result-actions{flex-direction:column}
+  .result-actions button{width:100%}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="lang-bar">
+    <button class="lang-btn active" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" onclick="setLang('fr')">FR</button>
+  </div>
+
+  <!-- INTRO -->
+  <div id="screen-intro" class="screen">
+    <p class="hero-eyebrow" data-t="eyebrow">Inner Landscape Assessment</p>
+    <div class="intro-title" data-t="intro_title">Before we begin…</div>
+    <p class="intro-sub" data-t="intro_sub">A few words about you so we can personalise your portrait.</p>
+
+    <div class="field-group">
+      <label class="field-label" data-t="label_name">First name</label>
+      <input class="field-input" id="user-name" type="text" autocomplete="given-name" placeholder="e.g. Sarah"/>
+      <div class="intro-err" id="err-name" data-t="err_name">Please enter your first name.</div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" data-t="label_age">Age</label>
+      <input class="field-input" id="user-age" type="number" min="13" max="99" placeholder="e.g. 28"/>
+      <div class="intro-err" id="err-age" data-t="err_age">Please enter a valid age (13–99).</div>
+    </div>
+
+    <div class="field-group">
+      <label class="field-label" data-t="label_gender">Gender</label>
+      <div class="gender-grid" id="gender-grid"></div>
+      <div class="intro-err" id="err-gender" data-t="err_gender">Please select a gender.</div>
+    </div>
+
+    <button class="start-btn" onclick="submitIntro()" data-t="intro_start">Begin the journey →</button>
+  </div>
+
+  <!-- HOME -->
+  <div id="screen-home" class="screen active">
+    <p class="hero-eyebrow" data-t="eyebrow">Inner Landscape Assessment</p>
+    <h1 data-t="title">Discover your <em>inner world</em> &amp; hidden wounds</h1>
+    <p class="hero-desc" data-t="desc">A thoughtful questionnaire that reveals your personality blueprint, the emotional imprints shaping your life, who your ideal partner is, and who you are becoming.</p>
+    <div class="ornament"><div class="ornament-line"></div><div class="ornament-dot"></div><div class="ornament-line"></div></div>
+    <div class="feature-pills">
+      <span class="feature-pill" data-t="pill_personality">🌿 Personality portrait</span>
+      <span class="feature-pill" data-t="pill_wounds">💔 Inner wounds</span>
+      <span class="feature-pill" data-t="pill_partner">💞 Ideal partner</span>
+      <span class="feature-pill" data-t="pill_future">🔮 Future self</span>
+    </div>
+    <button class="start-btn" onclick="showScreen('intro')" data-t="start">Begin the journey</button>
+    <p class="disclaimer" data-t="disclaimer">This is not a clinical diagnostic tool. Results are for personal reflection only.</p>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="screen-quiz" class="screen">
+    <div class="progress-wrap">
+      <div class="progress-info">
+        <span><span data-t="q_label">Question</span>&nbsp;<span id="q-count"></span></span>
+        <span id="q-pct">0%</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="prog"></div></div>
+    </div>
+    <div class="section-badge" id="section-badge"></div>
+    <div class="q-number" id="q-num"></div>
+    <div class="q-text" id="q-text"></div>
+    <div class="options" id="options"></div>
+    <div class="nav">
+      <button class="back-btn" id="back-btn" onclick="prevQ()" data-t="back">← Back</button>
+      <button class="next-btn" id="next-btn" onclick="nextQ()" data-t="next">Continue →</button>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div id="screen-loading" class="screen">
+    <div class="spinner"></div>
+    <div class="loading-title" data-t="analyzing">Weaving your portrait…</div>
+    <div class="loading-sub" data-t="analyzing_sub">Reading between the lines</div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="screen-result" class="screen">
+    <div class="print-header">
+      <div class="print-logo">Inner Landscape — Personal Portrait</div>
+      <div class="print-date" id="print-date"></div>
+    </div>
+
+    <p class="result-eyebrow" data-t="your_portrait">Your portrait</p>
+    <div class="result-headline" id="r-name"></div>
+
+    <div class="rcard">
+      <div class="rcard-label sage" data-t="who_you_are">Who you are</div>
+      <div class="rcard-body" id="r-profile"></div>
+      <div class="pills" id="r-traits"></div>
+    </div>
+
+    <div class="rcard">
+      <div class="rcard-label sage" data-t="inner_wounds">Inner wounds to explore</div>
+      <div class="rcard-body" id="r-wounds-text"></div>
+      <div class="pills" id="r-wounds-pills"></div>
+    </div>
+
+    <div class="rcard partner">
+      <div class="rcard-label rose" data-t="perfect_partner">Your perfect partner</div>
+      <div class="rcard-body" id="r-partner-text"></div>
+      <div class="pills" id="r-partner-pills"></div>
+    </div>
+
+    <div class="rcard future">
+      <div class="rcard-label indigo" data-t="future_self">Who you are becoming</div>
+      <div class="rcard-body" id="r-future-text"></div>
+      <div class="pills" id="r-future-pills"></div>
+    </div>
+
+    <div class="rcard">
+      <div class="rcard-label sage" data-t="path_forward">Your path forward</div>
+      <div class="rcard-body" id="r-advice"></div>
+    </div>
+
+    <div class="result-actions">
+      <button class="reset-btn" onclick="resetQuiz()" data-t="retake">↺ Retake</button>
+      <button class="copy-btn" id="copy-btn" onclick="copyResult()" data-t="copy_result">Copy result</button>
+      <button class="print-btn" onclick="printResult()" data-t="print_result">🖨 Print</button>
+    </div>
+  </div>
+
+</div>
+<script>
+const T={
+  en:{
+    eyebrow:"Inner Landscape Assessment",
+    title:"Discover your <em>inner world</em> &amp; hidden wounds",
+    desc:"A thoughtful questionnaire that reveals your personality blueprint, the emotional imprints shaping your life, who your ideal partner is, and who you are becoming.",
+    start:"Begin the journey",
+    disclaimer:"This is not a clinical diagnostic tool. Results are for personal reflection only.",
+    q_label:"Question",back:"← Back",next:"Continue →",last_q:"See my results →",
+    analyzing:"Weaving your portrait…",analyzing_sub:"Reading between the lines",
+    your_portrait:"Your portrait",
+    who_you_are:"Who you are",
+    inner_wounds:"Inner wounds to explore",
+    perfect_partner:"Your perfect partner",
+    future_self:"Who you are becoming",
+    path_forward:"Your path forward",
+    retake:"↺ Retake",copy_result:"Copy result",print_result:"🖨 Print",
+    copied:"✓ Copied!",
+    section_core:"🌿 Personality & Wounds",
+    section_partner:"💞 Love & Partnership",
+    section_future:"🔮 Future Self",
+    pill_personality:"🌿 Personality portrait",
+    pill_wounds:"💔 Inner wounds",
+    pill_partner:"💞 Ideal partner",
+    pill_future:"🔮 Future self",
+    intro_title:"Before we begin…",
+    intro_sub:"A few words about you so we can personalise your portrait.",
+    intro_start:"Begin the journey →",
+    label_name:"First name",label_age:"Age",label_gender:"Gender",
+    err_name:"Please enter your first name.",
+    err_age:"Please enter a valid age (13–99).",
+    err_gender:"Please select a gender.",
+    gender_man:"👨 Man",gender_woman:"👩 Woman",gender_nb:"🌈 Non-binary",gender_other:"✨ Other",
+  },
+  fr:{
+    eyebrow:"Exploration du jardin intérieur",
+    title:"Découvrez votre <em>monde intérieur</em> et vos blessures cachées",
+    desc:"Un questionnaire réfléchi qui révèle votre profil de personnalité, vos empreintes émotionnelles, votre partenaire idéal et qui vous devenez.",
+    start:"Commencer le voyage",
+    disclaimer:"Ceci n'est pas un outil diagnostique clinique. Les résultats sont à des fins de réflexion personnelle uniquement.",
+    q_label:"Question",back:"← Retour",next:"Continuer →",last_q:"Voir mes résultats →",
+    analyzing:"Tissage de votre portrait…",analyzing_sub:"Lecture entre les lignes",
+    your_portrait:"Votre portrait",
+    who_you_are:"Qui vous êtes",
+    inner_wounds:"Blessures intérieures à explorer",
+    perfect_partner:"Votre partenaire idéal(e)",
+    future_self:"Qui vous devenez",
+    path_forward:"Votre chemin vers l'avant",
+    retake:"↺ Recommencer",copy_result:"Copier le résultat",print_result:"🖨 Imprimer",
+    copied:"✓ Copié !",
+    section_core:"🌿 Personnalité & Blessures",
+    section_partner:"💞 Amour & Relation",
+    section_future:"🔮 Moi futur",
+    pill_personality:"🌿 Portrait de personnalité",
+    pill_wounds:"💔 Blessures intérieures",
+    pill_partner:"💞 Partenaire idéal(e)",
+    pill_future:"🔮 Moi futur",
+    intro_title:"Avant de commencer…",
+    intro_sub:"Quelques mots sur vous pour personnaliser votre portrait.",
+    intro_start:"Commencer le voyage →",
+    label_name:"Prénom",label_age:"Âge",label_gender:"Genre",
+    err_name:"Veuillez entrer votre prénom.",
+    err_age:"Veuillez entrer un âge valide (13–99).",
+    err_gender:"Veuillez sélectionner un genre.",
+    gender_man:"👨 Homme",gender_woman:"👩 Femme",gender_nb:"🌈 Non-binaire",gender_other:"✨ Autre",
+  }
+};
+
+const QUESTIONS={
+  en:[
+    // ── CORE (12) ──
+    {s:'core',q:"When you're in a new group of people, you tend to…",opts:["Observe quietly before engaging","Dive in and introduce yourself to everyone","Wait for others to approach you first","Feel anxious but push yourself anyway"]},
+    {s:'core',q:"When someone close to you needs emotional support, you…",opts:["Listen deeply and feel their pain with them","Offer practical solutions straight away","Feel uncertain about what to say","Put their needs above your own discomfort"]},
+    {s:'core',q:"Think of a significant failure in your life. Your first instinct was to…",opts:["Blame myself and feel ashamed","Analyze what went wrong logically","Hide it from others","Move on quickly without dwelling on it"]},
+    {s:'core',q:"When you imagine your childhood home, you feel…",opts:["Warmth and safety","A mix of joy and sadness","Tension or unease","A strange distance, like watching a film"]},
+    {s:'core',q:"How do you usually respond to conflict?",opts:["Avoid it at all costs","Face it head-on, even if uncomfortable","Freeze and struggle to find words","Try to smooth things over to keep the peace"]},
+    {s:'core',q:"At your core, your deepest fear is…",opts:["Being abandoned or left alone","Being rejected or not loved as you are","Losing control of your life","Not being good enough, ever"]},
+    {s:'core',q:"When you achieve something important, you…",opts:["Feel proud and share it with others","Immediately focus on the next goal","Wonder if you truly deserved it","Downplay it so others don't feel bad"]},
+    {s:'core',q:"In close relationships, you most often find yourself…",opts:["Giving more than you receive","Keeping emotional distance to feel safe","Longing for closeness but pushing people away","Seeking reassurance frequently"]},
+    {s:'core',q:"When you're alone with your thoughts, they tend to be…",opts:["Anxious and circling around worries","Creative and exploratory","Nostalgic and melancholic","Neutral — I prefer to stay busy"]},
+    {s:'core',q:"The way you were raised taught you that love is…",opts:["Earned through performance","Conditional and sometimes unpredictable","A safe, consistent presence","Something that must be sacrificed for"]},
+    {s:'core',q:"When you need something from others, you…",opts:["Ask clearly and without guilt","Drop hints and hope they notice","Feel shame and try to manage alone","Worry they'll think less of you for asking"]},
+    {s:'core',q:"What best describes your relationship with your own body?",opts:["I feel mostly at home in it","I often feel disconnected from it","I am critical or harsh towards it","I use it as a signal to understand my emotions"]},
+    // ── PARTNER (8) ──
+    {s:'partner',q:"In a romantic relationship, what do you need most?",opts:["Deep emotional safety and trust","Intellectual stimulation and growth","Passion, spontaneity and adventure","Stability, loyalty and consistency"]},
+    {s:'partner',q:"Your ideal partner's communication style is someone who…",opts:["Checks in often and expresses feelings openly","Is calm, thoughtful, and measured in words","Is direct and honest, even if it stings","Uses humour and lightness to connect"]},
+    {s:'partner',q:"Which quality would be an absolute dealbreaker for you?",opts:["Emotional unavailability or coldness","Dishonesty or hidden agendas","Lack of ambition or direction","Controlling or dismissive behaviour"]},
+    {s:'partner',q:"In a conflict with a partner, you most need them to…",opts:["Stay present and not withdraw","Give you space to process alone","Acknowledge your feelings before anything else","Find a practical solution together quickly"]},
+    {s:'partner',q:"What does intimacy look like for you in a relationship?",opts:["Sharing secrets and vulnerabilities openly","Physical closeness and affection","Doing meaningful things together","Long, deep conversations late at night"]},
+    {s:'partner',q:"The relationship dynamic you secretly crave is…",opts:["Two whole people choosing each other freely","A safe haven from the world's chaos","A team that challenges and elevates each other","A soulmate connection that feels fated"]},
+    {s:'partner',q:"When a partner is going through something hard, you want to…",opts:["Be their emotional anchor","Help fix the problem for them","Give them space but signal you're there","Sit with them in silence without trying to solve"]},
+    {s:'partner',q:"Your love language leans most toward…",opts:["Words of affirmation and verbal closeness","Acts of service and practical care","Quality time and undivided presence","Physical touch and bodily reassurance"]},
+    // ── FUTURE (7) ──
+    {s:'future',q:"When you imagine yourself 10 years from now, you hope to feel…",opts:["At peace with who I am","Proud of what I've built","Deeply connected to others","Free — in every sense of the word"]},
+    {s:'future',q:"Which challenge is calling you most right now?",opts:["Learning to receive love without fear","Setting boundaries without guilt","Trusting myself more fully","Letting go of who I was supposed to be"]},
+    {s:'future',q:"What role does creativity or expression play in your future?",opts:["It's central — I want to create something lasting","It's a private refuge I want to nurture","Not much — I'm driven by connection and impact","It's something I've neglected and want to reclaim"]},
+    {s:'future',q:"The version of yourself you're becoming is someone who…",opts:["Speaks their truth without apology","Leads with compassion and wisdom","Has made peace with their past","Lives with intention and quiet confidence"]},
+    {s:'future',q:"How do you feel about uncertainty and change?",opts:["I resist it — stability is everything to me","I'm slowly learning to embrace it","I thrive in it — I love reinvention","I accept it intellectually but struggle emotionally"]},
+    {s:'future',q:"Your greatest untapped strength is…",opts:["My emotional depth and empathy","My ability to see patterns and think strategically","My resilience — I endure more than people know","My creativity and unique way of seeing the world"]},
+    {s:'future',q:"The one thing you most want to heal or release is…",opts:["The need for external validation","Fear of being truly seen","The story that I'm not enough","Anger or grief I've been carrying silently"]},
+  ],
+  fr:[
+    // ── CORE ──
+    {s:'core',q:"Dans un nouveau groupe de personnes, vous avez tendance à…",opts:["Observer tranquillement avant de vous engager","Plonger et vous présenter à tout le monde","Attendre que les autres viennent vers vous","Vous sentir anxieux(se) mais vous pousser quand même"]},
+    {s:'core',q:"Quand quelqu'un de proche a besoin de soutien émotionnel, vous…",opts:["Écoutez profondément et ressentez leur douleur","Proposez des solutions pratiques immédiatement","Vous sentez incertain(e) de ce qu'il faut dire","Mettez leurs besoins au-dessus de votre propre malaise"]},
+    {s:'core',q:"Pensez à un échec significatif. Votre premier instinct était de…",opts:["Me blâmer et ressentir de la honte","Analyser logiquement ce qui s'est passé","Le cacher aux autres","Passer à autre chose rapidement sans y revenir"]},
+    {s:'core',q:"Quand vous imaginez votre maison d'enfance, vous ressentez…",opts:["Chaleur et sécurité","Un mélange de joie et de tristesse","Tension ou malaise","Une étrange distance, comme regarder un film"]},
+    {s:'core',q:"Comment répondez-vous habituellement aux conflits ?",opts:["Je les évite à tout prix","Je les affronte, même si c'est inconfortable","Je me fige et peine à trouver les mots","J'essaie d'arranger les choses pour préserver la paix"]},
+    {s:'core',q:"Au fond de vous, votre peur la plus profonde est…",opts:["D'être abandonné(e) ou laissé(e) seul(e)","D'être rejeté(e) ou pas aimé(e) tel(le) que je suis","De perdre le contrôle de ma vie","De ne jamais être assez bien"]},
+    {s:'core',q:"Quand vous accomplissez quelque chose d'important, vous…",opts:["Vous sentez fier(ère) et le partagez avec les autres","Vous concentrez immédiatement sur l'objectif suivant","Vous demandez si vous le méritiez vraiment","Le minimisez pour ne pas que les autres se sentent mal"]},
+    {s:'core',q:"Dans les relations proches, vous vous retrouvez le plus souvent à…",opts:["Donner plus que vous ne recevez","Garder une distance émotionnelle pour vous sentir en sécurité","Désirer la proximité mais repousser les gens","Chercher fréquemment de la réassurance"]},
+    {s:'core',q:"Quand vous êtes seul(e) avec vos pensées, elles tendent à être…",opts:["Anxieuses et tournant autour des inquiétudes","Créatives et exploratrices","Nostalgiques et mélancoliques","Neutres — je préfère rester occupé(e)"]},
+    {s:'core',q:"La façon dont vous avez été élevé(e) vous a appris que l'amour est…",opts:["Gagné par la performance","Conditionnel et parfois imprévisible","Une présence sûre et constante","Quelque chose pour lequel il faut se sacrifier"]},
+    {s:'core',q:"Quand vous avez besoin de quelque chose des autres, vous…",opts:["Demandez clairement et sans culpabilité","Donnez des indices en espérant qu'ils remarquent","Ressentez de la honte et essayez de vous débrouiller seul(e)","Craignez qu'ils vous estiment moins pour avoir demandé"]},
+    {s:'core',q:"Laquelle décrit le mieux votre relation avec votre propre corps ?",opts:["Je me sens généralement chez moi dedans","Je me sens souvent déconnecté(e) de lui","Je suis critique ou dur(e) envers lui","Je l'utilise comme signal pour comprendre mes émotions"]},
+    // ── PARTNER ──
+    {s:'partner',q:"Dans une relation amoureuse, ce dont vous avez le plus besoin est…",opts:["Une sécurité émotionnelle profonde et une vraie confiance","Une stimulation intellectuelle et une croissance partagée","La passion, la spontanéité et l'aventure","La stabilité, la loyauté et la constance"]},
+    {s:'partner',q:"Le style de communication idéal de votre partenaire est quelqu'un qui…",opts:["Prend des nouvelles souvent et exprime ses sentiments ouvertement","Est calme, réfléchi(e) et mesuré(e) dans ses mots","Est direct(e) et honnête, même si ça pique","Utilise l'humour et la légèreté pour se connecter"]},
+    {s:'partner',q:"Quelle qualité serait un deal-breaker absolu pour vous ?",opts:["L'indisponibilité émotionnelle ou la froideur","Le mensonge ou les agendas cachés","Le manque d'ambition ou de direction","Un comportement contrôlant ou méprisant"]},
+    {s:'partner',q:"En cas de conflit avec un partenaire, vous avez surtout besoin qu'il/elle…",opts:["Reste présent(e) et ne se retire pas","Vous laisse de l'espace pour traiter seul(e)","Reconnaisse vos sentiments avant tout le reste","Trouve rapidement une solution concrète ensemble"]},
+    {s:'partner',q:"À quoi ressemble l'intimité pour vous dans une relation ?",opts:["Partager des secrets et des vulnérabilités ouvertement","La proximité physique et la tendresse","Faire des choses significatives ensemble","De longues conversations profondes tard la nuit"]},
+    {s:'partner',q:"La dynamique de relation que vous désirez secrètement est…",opts:["Deux êtres entiers qui se choisissent librement","Un havre de paix contre le chaos du monde","Une équipe qui se challenge et s'élève mutuellement","Une connexion d'âmes qui semble destinée"]},
+    {s:'partner',q:"Quand un partenaire traverse quelque chose de difficile, vous voulez…",opts:["Être son ancre émotionnelle","L'aider à régler le problème","Lui donner de l'espace tout en signalant votre présence","Rester avec lui/elle en silence sans chercher à résoudre"]},
+    {s:'partner',q:"Votre langage de l'amour penche surtout vers…",opts:["Les mots d'affirmation et la proximité verbale","Les actes de service et les attentions pratiques","Le temps de qualité et la présence totale","Le toucher physique et la réassurance corporelle"]},
+    // ── FUTURE ──
+    {s:'future',q:"Quand vous vous imaginez dans 10 ans, vous espérez vous sentir…",opts:["En paix avec qui je suis","Fier(ère) de ce que j'ai construit","Profondément connecté(e) aux autres","Libre — dans tous les sens du terme"]},
+    {s:'future',q:"Quel défi vous appelle le plus en ce moment ?",opts:["Apprendre à recevoir l'amour sans crainte","Fixer des limites sans culpabilité","Me faire davantage confiance","Lâcher prise sur qui j'étais censé(e) être"]},
+    {s:'future',q:"Quel rôle joue la créativité ou l'expression dans votre avenir ?",opts:["Elle est centrale — je veux créer quelque chose de durable","C'est un refuge privé que je veux cultiver","Pas vraiment — je suis motivé(e) par la connexion et l'impact","C'est quelque chose que j'ai négligé et que je veux récupérer"]},
+    {s:'future',q:"La version de vous-même que vous devenez est quelqu'un qui…",opts:["Exprime sa vérité sans s'excuser","Dirige avec compassion et sagesse","A fait la paix avec son passé","Vit avec intention et une confiance tranquille"]},
+    {s:'future',q:"Comment vous sentez-vous face à l'incertitude et au changement ?",opts:["Je le résiste — la stabilité est tout pour moi","J'apprends lentement à l'accepter","J'y prospère — j'aime la réinvention","Je l'accepte intellectuellement mais lutte émotionnellement"]},
+    {s:'future',q:"Votre plus grande force inexploitée, vous croyez, c'est…",opts:["Ma profondeur émotionnelle et mon empathie","Ma capacité à voir les schémas et à penser stratégiquement","Ma résilience — j'endure plus que les gens ne le savent","Ma créativité et ma façon unique de voir le monde"]},
+    {s:'future',q:"La seule chose que vous voulez le plus guérir ou lâcher est…",opts:["Le besoin de validation externe","La peur d'être vraiment vu(e)","L'histoire que je ne suis pas assez","La colère ou le deuil que je porte silencieusement"]},
+  ]
+};
+
+let lang='en',current=0,answers=[],lastResult=null;
+let userInfo={name:'',age:'',gender:''};
+const apiKey='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';
+
+function setLang(l){
+  lang=l;
+  document.querySelectorAll('.lang-btn').forEach((b,i)=>b.classList.toggle('active',(i===0&&l==='en')||(i===1&&l==='fr')));
+  document.querySelectorAll('[data-t]').forEach(el=>{
+    const k=el.getAttribute('data-t');
+    if(T[l][k]!==undefined) el.innerHTML=T[l][k];
+  });
+  renderGenderOptions();
+}
+
+function renderGenderOptions(){
+  const grid=document.getElementById('gender-grid');
+  if(!grid)return;
+  const opts=[
+    {k:'gender_man',val:'man'},{k:'gender_woman',val:'woman'},
+    {k:'gender_nb',val:'non-binary'},{k:'gender_other',val:'other'}
+  ];
+  grid.innerHTML='';
+  opts.forEach(o=>{
+    const btn=document.createElement('button');
+    btn.className='gender-opt'+(userInfo.gender===o.val?' selected':'');
+    btn.textContent=T[lang][o.k];
+    btn.onclick=()=>{userInfo.gender=o.val;document.querySelectorAll('.gender-opt').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');};
+    grid.appendChild(btn);
+  });
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  if(id==='intro') renderGenderOptions();
+}
+
+function submitIntro(){
+  const name=document.getElementById('user-name').value.trim();
+  const age=parseInt(document.getElementById('user-age').value);
+  let ok=true;
+  document.getElementById('err-name').style.display=(!name)?'block':'none'; if(!name) ok=false;
+  document.getElementById('err-age').style.display=(isNaN(age)||age<13||age>99)?'block':'none'; if(isNaN(age)||age<13||age>99) ok=false;
+  document.getElementById('err-gender').style.display=(!userInfo.gender)?'block':'none'; if(!userInfo.gender) ok=false;
+  if(!ok) return;
+  userInfo.name=name; userInfo.age=age;
+  startQuiz();
+}
+
+function startQuiz(){
+  answers=new Array(QUESTIONS[lang].length).fill(null);
+  current=0;
+  showScreen('quiz');
+  renderQ();
+}
+
+function renderQ(){
+  const qs=QUESTIONS[lang],q=qs[current],total=qs.length;
+  document.getElementById('q-count').textContent=`${current+1} / ${total}`;
+  document.getElementById('q-pct').textContent=Math.round((current/total)*100)+'%';
+  document.getElementById('prog').style.width=((current/total)*100)+'%';
+  document.getElementById('q-num').textContent=(current+1<10?'0':'')+(current+1);
+  document.getElementById('q-text').textContent=q.q;
+
+  const sectionLabels={core:T[lang].section_core,partner:T[lang].section_partner,future:T[lang].section_future};
+  const badge=document.getElementById('section-badge');
+  badge.textContent=sectionLabels[q.s]||'';
+  badge.className='section-badge '+q.s;
+
+  const cont=document.getElementById('options');
+  cont.innerHTML='';
+  document.querySelectorAll('.error-box').forEach(e=>e.remove());
+  q.opts.forEach((opt,i)=>{
+    const btn=document.createElement('button');
+    let cls='opt';
+    if(answers[current]===i) cls+=' selected'+(q.s==='partner'?' partner-q':q.s==='future'?' future-q':'');
+    btn.className=cls;
+    btn.textContent=opt;
+    btn.onclick=()=>selectOpt(i,q.s);
+    cont.appendChild(btn);
+  });
+  document.getElementById('back-btn').style.visibility=current===0?'hidden':'visible';
+  const nb=document.getElementById('next-btn');
+  nb.classList.toggle('show',answers[current]!==null);
+  nb.textContent=current===qs.length-1?T[lang].last_q:T[lang].next;
+}
+
+function selectOpt(i,section){
+  answers[current]=i;
+  document.querySelectorAll('.opt').forEach((b,j)=>{
+    b.className='opt'+(j===i?' selected'+(section==='partner'?' partner-q':section==='future'?' future-q':''):'');
+  });
+  document.getElementById('next-btn').classList.add('show');
+}
+
+function prevQ(){if(current>0){current--;renderQ();}}
+function nextQ(){
+  if(current<QUESTIONS[lang].length-1){current++;renderQ();}
+  else analyzeResults();
+}
+
+async function analyzeResults(){
+  showScreen('loading');
+  const qs=QUESTIONS[lang];
+  const summary=qs.map((q,i)=>`[${q.s.toUpperCase()}] Q: ${q.q}\nA: ${q.opts[answers[i]]}`).join('\n\n');
+  const isEn=lang==='en';
+  const userCtx=isEn
+    ?`Person: ${userInfo.name}, ${userInfo.age} years old, gender: ${userInfo.gender}.`
+    :`Personne : ${userInfo.name}, ${userInfo.age} ans, genre : ${userInfo.gender}.`;
+
+  const systemPrompt=isEn
+    ?`You are a compassionate psychologist specializing in personality archetypes, attachment theory, and human potential. You will receive information about the person (name, age, gender) — use this to make the analysis feel personal and tailored (use their name, adapt tone to age and gender). Analyze the questionnaire answers (tagged CORE, PARTNER, FUTURE) and return ONLY a valid JSON object — no markdown fences, no explanation, no preamble. Use exactly this structure:
+{
+  "personality_name": "A poetic 3-6 word name for this person's personality archetype",
+  "profile": "3-4 warm, precise sentences describing their core personality, strengths, relational patterns, and how they move through the world. Use their first name naturally.",
+  "traits": ["4 to 6 short descriptive trait labels"],
+  "wounds_text": "2-3 sentences about possible unresolved emotional imprints from their past. Be gentle, compassionate, non-pathologizing. Use their first name.",
+  "wounds": ["3 to 5 short wound labels e.g. Fear of abandonment, Perfectionism shield, Emotional avoidance"],
+  "partner_text": "2-3 sentences describing the kind of partner this person would truly thrive with — based on their attachment style, communication needs, love language, and emotional patterns. Be specific and warm. Consider their gender when referring to a potential partner.",
+  "partner_traits": ["4 to 6 short labels describing ideal partner qualities, e.g. Emotionally available, Calm communicator, Growth-oriented"],
+  "future_text": "2-3 sentences painting a picture of who this person is becoming — their emerging strengths, their next chapter, their trajectory of healing or growth. Be inspiring and grounded. Use their first name.",
+  "future_traits": ["3 to 5 short labels about their emerging future self, e.g. Boundary-setter, Creative voice, Quiet leader"],
+  "advice": "2-3 sentences of gentle, actionable guidance toward self-understanding, healing, and growth. Address them by first name."
+}`
+    :`Tu es un psychologue bienveillant spécialisé en archétypes de personnalité, théorie de l'attachement et potentiel humain. Tu vas recevoir des informations sur la personne (prénom, âge, genre) — utilise-les pour rendre l'analyse personnelle et adaptée (utilise son prénom, adapte le ton à l'âge et au genre). Analyse les réponses (étiquetées CORE, PARTNER, FUTURE) et retourne UNIQUEMENT un objet JSON valide — pas de balises markdown, pas de préambule. Utilise exactement cette structure :
+{
+  "personality_name": "Un nom poétique de 3 à 6 mots pour l'archétype de personnalité",
+  "profile": "3-4 phrases chaleureuses et précises sur la personnalité fondamentale, les forces, les schémas relationnels. Utilise son prénom naturellement.",
+  "traits": ["4 à 6 étiquettes de traits courts"],
+  "wounds_text": "2-3 phrases sur les empreintes émotionnelles non résolues. Bienveillantes, sans pathologiser. Utilise son prénom.",
+  "wounds": ["3 à 5 courtes étiquettes de blessures"],
+  "partner_text": "2-3 phrases décrivant le type de partenaire avec lequel cette personne s'épanouirait vraiment. Tiens compte du genre pour désigner le partenaire potentiel.",
+  "partner_traits": ["4 à 6 courtes étiquettes de qualités idéales chez un partenaire"],
+  "future_text": "2-3 phrases décrivant qui cette personne est en train de devenir. Utilise son prénom.",
+  "future_traits": ["3 à 5 courtes étiquettes sur le moi futur émergent"],
+  "advice": "2-3 phrases de conseils doux et actionnables. Adresse-toi à la personne par son prénom."
+}`;
+
+  try{
+    const resp=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
+      body:JSON.stringify({
+        model:'llama-3.3-70b-versatile',
+        temperature:0.7,
+        max_tokens:1800,
+        response_format:{type:'json_object'},
+        messages:[
+          {role:'system',content:systemPrompt},
+          {role:'user',content:`${userCtx}\n\n${summary}`}
+        ]
+      })
+    });
+    if(!resp.ok){
+      const err=await resp.json().catch(()=>({}));
+      throw new Error(err.error?.message||`HTTP ${resp.status}`);
+    }
+    const data=await resp.json();
+    const result=JSON.parse(data.choices[0].message.content);
+    lastResult=result;
+    renderResult(result);
+  }catch(e){
+    showScreen('quiz');
+    const msg=`Analysis failed: ${e.message}. Please try again.`;
+    document.getElementById('options').insertAdjacentHTML('afterend',`<div class="error-box">${msg}</div>`);
+  }
+}
+
+function renderResult(r){
+  // Personalised eyebrow with name
+  const eyebrow=document.querySelector('#screen-result .result-eyebrow');
+  if(eyebrow) eyebrow.textContent=(lang==='en'?`${userInfo.name}'s portrait`:`Portrait de ${userInfo.name}`);
+
+  document.getElementById('r-name').textContent=r.personality_name;
+  document.getElementById('r-profile').textContent=r.profile;
+  document.getElementById('r-wounds-text').textContent=r.wounds_text;
+  document.getElementById('r-advice').textContent=r.advice;
+  document.getElementById('r-traits').innerHTML=(r.traits||[]).map(t=>`<span class="pill-sage">${t}</span>`).join('');
+  document.getElementById('r-wounds-pills').innerHTML=(r.wounds||[]).map(w=>`<span class="pill-warm">${w}</span>`).join('');
+  document.getElementById('r-partner-text').textContent=r.partner_text||'';
+  document.getElementById('r-partner-pills').innerHTML=(r.partner_traits||[]).map(t=>`<span class="pill-rose">${t}</span>`).join('');
+  document.getElementById('r-future-text').textContent=r.future_text||'';
+  document.getElementById('r-future-pills').innerHTML=(r.future_traits||[]).map(t=>`<span class="pill-indigo">${t}</span>`).join('');
+  // Print header
+  const dateStr=new Date().toLocaleDateString(lang==='fr'?'fr-FR':'en-GB',{year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('print-date').textContent=`${userInfo.name} · ${dateStr}`;
+
+  showScreen('result');
+}
+
+
+
+function copyResult(){
+  if(!lastResult)return;
+  const r=lastResult;
+  const isEn=lang==='en';
+  const txt=[
+    `✦ ${r.personality_name}`,``,
+    `${userInfo.name} · ${userInfo.age} ${isEn?'y/o':'ans'} · ${userInfo.gender}`,``,
+    isEn?'WHO YOU ARE':'QUI VOUS ÊTES',
+    r.profile,
+    `${isEn?'Traits':'Traits'}: ${(r.traits||[]).join(', ')}`,``,
+    isEn?'INNER WOUNDS':'BLESSURES INTÉRIEURES',
+    r.wounds_text,
+    `${isEn?'Wounds':'Blessures'}: ${(r.wounds||[]).join(', ')}`,``,
+    isEn?'YOUR PERFECT PARTNER':'VOTRE PARTENAIRE IDÉAL(E)',
+    r.partner_text,
+    `${isEn?'Partner profile':'Profil partenaire'}: ${(r.partner_traits||[]).join(', ')}`,``,
+    isEn?'WHO YOU ARE BECOMING':'QUI VOUS DEVENEZ',
+    r.future_text,
+    `${isEn?'Future self':'Moi futur'}: ${(r.future_traits||[]).join(', ')}`,``,
+    isEn?'PATH FORWARD':'CHEMIN VERS L\'AVANT',
+    r.advice,
+  ].join('\n');
+  navigator.clipboard.writeText(txt).then(()=>{
+    const btn=document.getElementById('copy-btn');
+    const prev=btn.textContent;
+    btn.textContent=T[lang].copied;
+    setTimeout(()=>btn.textContent=prev,2200);
+  });
+}
+
+function printResult(){
+  window.print();
+}
+
+function resetQuiz(){
+  answers=[];current=0;lastResult=null;
+  userInfo={name:'',age:'',gender:''};
+  document.getElementById('user-name').value='';
+  document.getElementById('user-age').value='';
+  document.querySelectorAll('.error-box').forEach(e=>e.remove());
+  showScreen('home');
+}
+</script>
+</body>
+</html>
